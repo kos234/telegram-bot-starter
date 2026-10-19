@@ -1,0 +1,9 @@
+kos.progs.telegram.bot.i18n.config.I18nConfig
+kos.progs.telegram.bot.states.config.StateConfig
+kos.progs.telegram.bot.user.config.UserConfig
+kos.progs.telegram.bot.admin.config.AdminConfig
+kos.progs.telegram.bot.button.config.ButtonConfig
+kos.progs.telegram.bot.command.config.CommandConfig
+kos.progs.telegram.bot.lists.config.ListConfig
+kos.progs.telegram.bot.settings.config.SettingsConfig
+kos.progs.telegram.bot.core.config.TelegramCoreConfig
