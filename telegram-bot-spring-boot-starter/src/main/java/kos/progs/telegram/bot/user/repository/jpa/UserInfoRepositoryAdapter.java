@@ -1,9 +1,7 @@
-package kos.progs.telegram.bot.user.repository.jpa.adapters;
+package kos.progs.telegram.bot.user.repository.jpa;
 
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
-import kos.progs.telegram.bot.user.repository.jpa.mappers.UserInfoMapper;
-import kos.progs.telegram.bot.user.repository.jpa.repository.JPAUserInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 

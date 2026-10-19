@@ -12,7 +12,7 @@ import kos.progs.telegram.bot.admin.repository.memory.MemoryAdminsRepository;
 import kos.progs.telegram.bot.admin.service.AdminService;
 import kos.progs.telegram.bot.admin.state.AdminsManipulateState;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
-import kos.progs.telegram.bot.spi.AdminMenuItemProvider;
+import kos.progs.telegram.bot.admin.AdminMenuItemProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

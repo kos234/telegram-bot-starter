@@ -1,7 +1,6 @@
-package kos.progs.telegram.bot.user.repository.jpa.mappers;
+package kos.progs.telegram.bot.user.repository.jpa;
 
 import kos.progs.telegram.bot.user.model.UserInfo;
-import kos.progs.telegram.bot.user.repository.jpa.entity.UserInfoEntity;
 
 public class UserInfoMapper {
     public UserInfo toModel(UserInfoEntity entity) {

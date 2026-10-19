@@ -4,7 +4,7 @@ import kos.progs.telegram.bot.admin.service.AdminService;
 import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.core.model.HandleResult;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
-import kos.progs.telegram.bot.spi.MainMenuContributor;
+import kos.progs.telegram.bot.main_menu.MainMenuContributor;
 import kos.progs.telegram.bot.states.service.NavigationService;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;

@@ -70,6 +70,7 @@ public class StateService {
             if (!handler.isHandle(frame)) {
                 continue;
             }
+
             try {
                 handleResult = handler.handle(message, userInfo, frame);
             } catch (TelegramApiException e) {

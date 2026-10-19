@@ -6,7 +6,7 @@ import kos.progs.telegram.bot.command.handler.CommandHandler;
 import kos.progs.telegram.bot.command.handler.StartHandler;
 import kos.progs.telegram.bot.command.service.CommandService;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
-import kos.progs.telegram.bot.spi.MainMenuContributor;
+import kos.progs.telegram.bot.main_menu.MainMenuContributor;
 import kos.progs.telegram.bot.states.service.NavigationService;
 import kos.progs.telegram.bot.states.service.StateService;
 import kos.progs.telegram.bot.user.service.UserInfoService;

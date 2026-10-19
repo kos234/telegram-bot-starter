@@ -18,8 +18,6 @@ public class HandleResult {
     private boolean updateState;
     private StateFrame newState;
 
-    public static final HandleResult UNHANDLED = unhandled();
-
     public boolean isHandle() {
         return status == HandleStatus.HANDLED_SUCCESS || status == HandleStatus.HANDLED_ERROR;
     }

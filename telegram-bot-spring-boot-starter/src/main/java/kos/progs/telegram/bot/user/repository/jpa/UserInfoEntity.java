@@ -1,4 +1,4 @@
-package kos.progs.telegram.bot.user.repository.jpa.entity;
+package kos.progs.telegram.bot.user.repository.jpa;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

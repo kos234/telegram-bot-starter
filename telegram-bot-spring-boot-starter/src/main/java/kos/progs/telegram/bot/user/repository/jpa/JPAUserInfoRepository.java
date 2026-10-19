@@ -1,7 +1,8 @@
-package kos.progs.telegram.bot.user.repository.jpa.repository;
+package kos.progs.telegram.bot.user.repository.jpa;
 
-import kos.progs.telegram.bot.user.repository.jpa.entity.UserInfoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface JPAUserInfoRepository extends JpaRepository<UserInfoEntity, Long> {
 }

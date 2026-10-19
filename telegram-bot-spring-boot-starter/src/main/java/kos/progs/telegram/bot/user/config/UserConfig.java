@@ -2,9 +2,9 @@ package kos.progs.telegram.bot.user.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
-import kos.progs.telegram.bot.user.repository.jpa.adapters.UserInfoRepositoryAdapter;
-import kos.progs.telegram.bot.user.repository.jpa.mappers.UserInfoMapper;
-import kos.progs.telegram.bot.user.repository.jpa.repository.JPAUserInfoRepository;
+import kos.progs.telegram.bot.user.repository.jpa.UserInfoRepositoryAdapter;
+import kos.progs.telegram.bot.user.repository.jpa.UserInfoMapper;
+import kos.progs.telegram.bot.user.repository.jpa.JPAUserInfoRepository;
 import kos.progs.telegram.bot.user.repository.memory.MemoryUserInfoRepository;
 import kos.progs.telegram.bot.user.repository.redis.RedisUserInfoRepository;
 import kos.progs.telegram.bot.user.service.UserInfoService;

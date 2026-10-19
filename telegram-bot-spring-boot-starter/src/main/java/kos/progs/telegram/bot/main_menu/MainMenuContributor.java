@@ -1,4 +1,4 @@
-package kos.progs.telegram.bot.spi;
+package kos.progs.telegram.bot.main_menu;
 
 import kos.progs.telegram.bot.common.model.Lang;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
