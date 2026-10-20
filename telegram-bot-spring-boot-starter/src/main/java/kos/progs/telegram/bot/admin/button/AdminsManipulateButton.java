@@ -7,7 +7,6 @@ import kos.progs.telegram.bot.core.model.HandleResult;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -15,7 +14,6 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.nio.ByteBuffer;
 
-@Service
 @RequiredArgsConstructor
 public class AdminsManipulateButton implements ButtonHandler {
     private final AdminsCommand adminsCommand;

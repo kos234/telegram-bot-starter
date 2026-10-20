@@ -1,9 +1,7 @@
 package kos.progs.telegram.bot.admin.button;
 
 import kos.progs.telegram.bot.button.service.ButtonService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AdminsCommand {
     public String getViewListCommand() {
         return "admins-list";

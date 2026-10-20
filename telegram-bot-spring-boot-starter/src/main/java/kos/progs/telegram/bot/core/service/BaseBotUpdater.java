@@ -6,13 +6,11 @@ import kos.progs.telegram.bot.states.service.StateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static kos.progs.telegram.bot.core.config.TelegramCoreConfig.TELEGRAM_BOT_EXECUTOR_NAME;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class BaseBotUpdater {

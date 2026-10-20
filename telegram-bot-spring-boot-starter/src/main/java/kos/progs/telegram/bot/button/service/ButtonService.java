@@ -10,7 +10,6 @@ import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -21,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
 public class ButtonService {

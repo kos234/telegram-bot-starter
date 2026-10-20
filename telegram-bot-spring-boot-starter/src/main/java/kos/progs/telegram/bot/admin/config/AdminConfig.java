@@ -1,5 +1,6 @@
 package kos.progs.telegram.bot.admin.config;
 
+import kos.progs.telegram.bot.admin.AdminMenuItemProvider;
 import kos.progs.telegram.bot.admin.button.AdminsCommand;
 import kos.progs.telegram.bot.admin.button.AdminsManipulateButton;
 import kos.progs.telegram.bot.admin.button.AdminsViewListButton;
@@ -12,9 +13,8 @@ import kos.progs.telegram.bot.admin.repository.memory.MemoryAdminsRepository;
 import kos.progs.telegram.bot.admin.service.AdminService;
 import kos.progs.telegram.bot.admin.state.AdminsManipulateState;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
-import kos.progs.telegram.bot.admin.AdminMenuItemProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,7 +24,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.List;
 
-@Configuration
+@AutoConfiguration(afterName = "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration")
 public class AdminConfig {
 
     @Configuration(proxyBeanMethods = false)
@@ -42,7 +42,6 @@ public class AdminConfig {
     @ConditionalOnProperty(name = "telegram.bot.admin-storage", havingValue = "jpa", matchIfMissing = true)
     public static class JpaAdminStorageConfiguration {
         @Bean
-        @ConditionalOnBean(JPAAdminUserRepository.class)
         @ConditionalOnMissingBean(AdminsRepository.class)
         public AdminsRepository jpaAdminRepositoryAdapter(JPAAdminUserRepository jpaAdminUserRepository) {
             return new AdminRepositoryAdapter(jpaAdminUserRepository);

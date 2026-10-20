@@ -6,7 +6,6 @@ import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.core.model.HandleResult;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@Service
 @RequiredArgsConstructor
 public class TelegramAdminsPresenter {
     private final AdminService adminService;

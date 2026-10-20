@@ -1,5 +1,6 @@
 package kos.progs.telegram.bot.core.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kos.progs.telegram.bot.button.service.ButtonService;
 import kos.progs.telegram.bot.command.service.CommandService;
 import kos.progs.telegram.bot.core.service.BaseBot;
@@ -7,10 +8,10 @@ import kos.progs.telegram.bot.core.service.BaseBotConsumer;
 import kos.progs.telegram.bot.core.service.BaseBotUpdater;
 import kos.progs.telegram.bot.states.service.StateService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,12 +23,18 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-@Configuration
+@AutoConfiguration
 @EnableAsync
 @EnableConfigurationProperties(TelegramBotProperties.class)
 public class TelegramCoreConfig {
 
     public static final String TELEGRAM_BOT_EXECUTOR_NAME = "telegramBotExecutor";
+
+    @Bean
+    @ConditionalOnMissingBean(ObjectMapper.class)
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean(name = TELEGRAM_BOT_EXECUTOR_NAME)
     @ConditionalOnMissingBean(name = TELEGRAM_BOT_EXECUTOR_NAME)

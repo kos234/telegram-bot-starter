@@ -1,6 +1,7 @@
 package kos.progs.telegram.bot.states.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kos.progs.telegram.bot.core.config.TelegramCoreConfig;
 import kos.progs.telegram.bot.states.handler.StateHandler;
 import kos.progs.telegram.bot.states.repository.HistoryRepository;
 import kos.progs.telegram.bot.states.repository.StateRepository;
@@ -16,6 +17,7 @@ import kos.progs.telegram.bot.states.service.NavigationService;
 import kos.progs.telegram.bot.states.service.StateService;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,7 +28,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.util.Collections;
 import java.util.List;
 
-@Configuration
+@AutoConfiguration(after = {TelegramCoreConfig.class}, afterName = "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration")
 public class StateConfig {
 
     @Configuration(proxyBeanMethods = false)

@@ -11,7 +11,6 @@ import kos.progs.telegram.bot.settings.spi.SettingsRowContributor;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@Service
 public class SettingsPresenter {
     private final MessagesService messagesService;
     private final TelegramClient telegramClient;

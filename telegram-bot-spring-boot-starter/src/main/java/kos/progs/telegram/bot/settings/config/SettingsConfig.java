@@ -18,16 +18,16 @@ import kos.progs.telegram.bot.settings.spi.SettingsRowContributor;
 import kos.progs.telegram.bot.settings.state.UserInfoChangeStateHandler;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.List;
 
-@Configuration
+@AutoConfiguration
 public class SettingsConfig {
 
     @Bean

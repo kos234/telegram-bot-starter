@@ -10,6 +10,7 @@
 
 1. **`telegram-bot-spring-boot-starter`** (`kos.progs:telegram-bot-spring-boot-starter:1.0.0-SNAPSHOT`)
 2. **`telegram-bot-payment-tinkoff-spring-boot-starter`** (`kos.progs:telegram-bot-payment-tinkoff-spring-boot-starter:1.0.0-SNAPSHOT`)
+3. **`telegram-bot-starter-runner`** (`kos.progs:telegram-bot-starter-runner:1.0.0-SNAPSHOT`) — модуль проверки, тестирования и запуска стартеров в Docker и локально.
 
 ---
 
@@ -376,6 +377,66 @@ telegram.bot.currency.custom[0].title=€
    - При нажатии на кнопку (`CallbackQuery`) `ButtonService` мгновенно отправляет `AnswerCallbackQuery` в Telegram **до** выполнения бизнес-логики хэндлера `ButtonHandler.handle(...)`.
    - Это гарантирует, что спиннер загрузки на кнопке у пользователя в Telegram гаснет сразу, а длительные блокирующие операции (запросы к БД, внешним API, платежным системам) в виртуальном потоке не приводят к ошибкам таймаута Telegram API (`query is too old`).
    - Обработка аргументов кнопок потокобезопасна при параллельном исполнении в виртуальных потоках.
+
+---
+
+## 🧪 Модуль проверки и запуска: `telegram-bot-starter-runner`
+
+Модуль `telegram-bot-starter-runner` создан специально для верификации и запуска стартеров (`telegram-bot-spring-boot-starter` и `telegram-bot-payment-tinkoff-spring-boot-starter`) в изолированном окружении, а также в Docker-контейнерах.
+
+### ⚙️ Доступные параметры стартера (`application.properties`)
+
+В модуле настроен файл `application.properties`, где активированы и задокументированы все доступные параметры стартера:
+
+```properties
+# 1. Токен бота
+telegram.bot.token=${BOT_TOKEN:123456789:AAFakeTokenForTestingStarterPurposes00}
+
+# 2. Хранилища данных
+telegram.bot.state-storage=redis     # redis, memory, jpa
+telegram.bot.user-storage=jpa        # jpa, memory, redis
+telegram.bot.admin-storage=jpa       # jpa, memory
+
+# 3. Поддержка языков и регистрация кастомных языков
+telegram.bot.language.enabled=true
+telegram.bot.language.default-code=RU
+telegram.bot.language.custom[0].id=3
+telegram.bot.language.custom[0].code=KZ
+telegram.bot.language.custom[0].tag=kk
+telegram.bot.language.custom[0].title=\u049A\u0430\u0437\u0430\u049B\u0448\u0430 # Қазақша
+
+# 4. Поддержка валют и регистрация кастомных валют
+telegram.bot.currency.enabled=true
+telegram.bot.currency.default-code=RUB
+telegram.bot.currency.custom[0].id=3
+telegram.bot.currency.custom[0].code=KZT
+telegram.bot.currency.custom[0].title=\u0422\u0435\u043D\u0433\u0435 # Тенге
+
+# 5. Email и телефон
+telegram.bot.email.enabled=true
+telegram.bot.phone.enabled=true
+
+# 6. Модуль платежей Т-Банк
+bot.payment.tinkoff.enabled=true
+bot.payment.tinkoff.server-url=${SERVER_URL:http://localhost:8080}
+bot.payment.tinkoff.storage=jpa
+```
+
+### 🐳 Запуск в Docker Compose
+
+Конфигурация `compose.yaml` включает сервисы PostgreSQL, Redis и сам `bot-server`:
+
+```bash
+# 1. Запуск всех сервисов (PostgreSQL, Redis, Bot Runner)
+docker compose up --build
+
+# 2. Остановка сервисов
+docker compose down
+```
+
+После старта доступны endpoints проверки:
+- `http://localhost:8080/health` — статус работы приложения
+- `http://localhost:8080/starter/info` — сводная информация об активированных хранилищах, зарегистрированных языках и валютах
 
 ---
 

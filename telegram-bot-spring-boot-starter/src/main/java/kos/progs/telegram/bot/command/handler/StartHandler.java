@@ -9,7 +9,6 @@ import kos.progs.telegram.bot.states.service.NavigationService;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
 public class StartHandler implements CommandHandler {

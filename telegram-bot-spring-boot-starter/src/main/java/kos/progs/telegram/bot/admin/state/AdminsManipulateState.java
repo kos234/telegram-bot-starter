@@ -9,13 +9,11 @@ import kos.progs.telegram.bot.states.handler.StateHandler;
 import kos.progs.telegram.bot.states.model.StateFrame;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-@Service
 @RequiredArgsConstructor
 public class AdminsManipulateState implements StateHandler {
     private final MessagesService messagesService;

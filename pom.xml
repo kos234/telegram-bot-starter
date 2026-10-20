@@ -19,6 +19,7 @@
     <modules>
         <module>telegram-bot-spring-boot-starter</module>
         <module>telegram-bot-payment-tinkoff-spring-boot-starter</module>
+        <module>telegram-bot-starter-runner</module>
     </modules>
 
     <properties>
@@ -39,6 +40,11 @@
             <dependency>
                 <groupId>kos.progs</groupId>
                 <artifactId>telegram-bot-payment-tinkoff-spring-boot-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>kos.progs</groupId>
+                <artifactId>telegram-bot-starter-runner</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

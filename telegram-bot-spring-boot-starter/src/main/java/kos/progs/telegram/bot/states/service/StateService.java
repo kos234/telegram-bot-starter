@@ -10,14 +10,12 @@ import kos.progs.telegram.bot.states.repository.StateRepository;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
 @Slf4j
 public class StateService {
     private final StateRepository stateRepository;

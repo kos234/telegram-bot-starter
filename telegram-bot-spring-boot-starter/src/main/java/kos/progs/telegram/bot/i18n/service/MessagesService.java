@@ -3,13 +3,11 @@ package kos.progs.telegram.bot.i18n.service;
 import kos.progs.telegram.bot.common.model.Lang;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Service
 @RequiredArgsConstructor
 public class MessagesService {
     private final MessageSource messageSource;

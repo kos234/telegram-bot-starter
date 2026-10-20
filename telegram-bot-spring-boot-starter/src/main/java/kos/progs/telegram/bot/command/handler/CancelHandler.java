@@ -12,7 +12,6 @@ import kos.progs.telegram.bot.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -25,7 +24,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.ByteBuffer;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
 public class CancelHandler implements CommandHandler, ButtonHandler {

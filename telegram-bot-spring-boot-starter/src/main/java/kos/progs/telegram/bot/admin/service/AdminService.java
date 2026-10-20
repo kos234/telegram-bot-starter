@@ -4,11 +4,9 @@ import kos.progs.telegram.bot.admin.config.LogMetrics;
 import kos.progs.telegram.bot.admin.repository.AdminsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
 public class AdminService {

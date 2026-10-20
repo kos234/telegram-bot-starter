@@ -11,14 +11,12 @@ import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-@Service
 @RequiredArgsConstructor
 public class UserInfoChangeStateHandler implements StateHandler {
     private final UserInfoService userInfoService;

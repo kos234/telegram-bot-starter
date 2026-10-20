@@ -5,13 +5,11 @@ import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-@Service
 public class UserInfoService {
     protected final IUserInfoRepository userInfoRepository;
     protected final DefaultUserInfoResolver defaultUserInfoResolver;

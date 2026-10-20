@@ -2,6 +2,7 @@ package kos.progs.telegram.bot.user.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kos.progs.telegram.bot.core.config.TelegramBotProperties;
+import kos.progs.telegram.bot.core.config.TelegramCoreConfig;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
 import kos.progs.telegram.bot.user.repository.jpa.JPAUserInfoRepository;
 import kos.progs.telegram.bot.user.repository.jpa.UserInfoMapper;
@@ -11,7 +12,7 @@ import kos.progs.telegram.bot.user.repository.redis.RedisUserInfoRepository;
 import kos.progs.telegram.bot.user.service.DefaultUserInfoResolver;
 import kos.progs.telegram.bot.user.service.StandardDefaultUserInfoResolver;
 import kos.progs.telegram.bot.user.service.UserInfoService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,7 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-@Configuration
+@AutoConfiguration(after = {TelegramCoreConfig.class}, afterName = "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration")
 public class UserConfig {
 
     @Configuration(proxyBeanMethods = false)
@@ -54,7 +55,6 @@ public class UserConfig {
         }
 
         @Bean
-        @ConditionalOnBean(JPAUserInfoRepository.class)
         @ConditionalOnMissingBean(IUserInfoRepository.class)
         public IUserInfoRepository jpaUserInfoRepositoryAdapter(JPAUserInfoRepository jpaUserInfoRepository,
                                                                 UserInfoMapper userInfoMapper) {

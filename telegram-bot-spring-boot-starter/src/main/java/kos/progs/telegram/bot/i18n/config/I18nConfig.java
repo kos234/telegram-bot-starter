@@ -6,15 +6,15 @@ import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.core.config.TelegramBotProperties;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.util.List;
 
-@Configuration
+@AutoConfiguration
 public class I18nConfig {
 
     @Bean
