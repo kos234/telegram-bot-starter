@@ -33,17 +33,11 @@ public class ButtonService {
 
     private static final Base64.Encoder ARGS_ENCODER = Base64.getEncoder().withoutPadding();
     private static final Base64.Decoder ARGS_DECODER = Base64.getDecoder();
-    private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
 
     public boolean handle(CallbackQuery callbackQuery) {
         if (callbackQuery == null) {
             return false;
         }
-
-        UserInfo userInfo = userInfoService.getUserInfo(
-                callbackQuery.getFrom().getId(),
-                callbackQuery.getFrom().getLanguageCode()
-        );
 
         String rawCommand = callbackQuery.getData();
         if (rawCommand == null) {
@@ -56,16 +50,39 @@ public class ButtonService {
             return false;
         }
 
-        ByteBuffer args = commandSplit.length == 2
-                ? ByteBuffer.wrap(ARGS_DECODER.decode(commandSplit[1]))
-                : EMPTY_BUFFER;
+        ByteBuffer args;
+        try {
+            args = commandSplit.length == 2
+                    ? ByteBuffer.wrap(ARGS_DECODER.decode(commandSplit[1]))
+                    : ByteBuffer.wrap(new byte[0]);
+        } catch (IllegalArgumentException e) {
+            log.error("Unable to decode callback command args: '{}'", commandSplit[1], e);
+            answerCallbackQuerySafely(callbackQuery.getId());
+            return false;
+        }
 
+        boolean answered = false;
         HandleResult result = HandleResult.unhandled();
+
         for (ButtonHandler handler : buttonHandlers) {
             if (!handler.isHandle(commandSplit[0])) {
                 continue;
             }
+
+            // Acknowledge immediately before handler execution to prevent Telegram callback query timeout
+            // while the virtual thread executes potentially long-running operations.
+            if (!answered) {
+                answerCallbackQuerySafely(callbackQuery.getId());
+                answered = true;
+            }
+
             try {
+                UserInfo userInfo = (callbackQuery.getFrom() != null)
+                        ? userInfoService.getUserInfo(
+                                callbackQuery.getFrom().getId(),
+                                callbackQuery.getFrom().getLanguageCode())
+                        : null;
+
                 args.rewind();
                 result = handler.handle(callbackQuery, userInfo, commandSplit[0], args);
             } catch (TelegramApiException e) {
@@ -75,23 +92,18 @@ public class ButtonService {
                 log.error("Unexpected error in button handler for '{}'", commandSplit[0], e);
                 result = HandleResult.error(e.getMessage());
             }
+
             if (result != null && result.isHandle()) {
                 break;
             }
         }
 
-        try {
-            if (callbackQuery.getId() != null) {
-                telegramClient.execute(AnswerCallbackQuery.builder()
-                        .callbackQueryId(callbackQuery.getId())
-                        .build());
-            }
-        } catch (TelegramApiException e) {
-            log.error("Error answering callback query: {}", e.getMessage());
+        if (!answered) {
+            answerCallbackQuerySafely(callbackQuery.getId());
         }
 
         if (result != null && result.isHandle()) {
-            if (result.isSuccess()) {
+            if (result.isSuccess() && callbackQuery.getMessage() != null) {
                 long chatId = callbackQuery.getMessage().getChatId();
                 if (result.isUpdateState()) {
                     stateService.setChatState(chatId, result.getNewState());
@@ -107,6 +119,21 @@ public class ButtonService {
         }
 
         return false;
+    }
+
+    private void answerCallbackQuerySafely(String callbackQueryId) {
+        if (callbackQueryId == null || telegramClient == null) {
+            return;
+        }
+        try {
+            telegramClient.execute(AnswerCallbackQuery.builder()
+                    .callbackQueryId(callbackQueryId)
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error("Telegram API error answering callback query '{}': {}", callbackQueryId, e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error answering callback query '{}': {}", callbackQueryId, e.getMessage());
+        }
     }
 
     public static String buildCommand(String command) {

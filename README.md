@@ -362,6 +362,21 @@ telegram.bot.currency.custom[0].title=€
 2. **Наследование от `UserInfoService`:**
    Класс `UserInfoService` открыт для расширения — вы можете переопределить метод `protected UserInfo createDefaultUserInfo(long userId, String systemLang)`.
 
+### 8. Асинхронная обработка и виртуальные потоки (Java 21 Virtual Threads)
+
+Вся обработка входящих апдейтов Telegram в стартере оптимизирована для работы с **виртуальными потоками Java 21**:
+
+1. **`BaseBotUpdater.update` в виртуальных потоках:**
+   - Аннотирован `@Async(TelegramCoreConfig.TELEGRAM_BOT_EXECUTOR_NAME)`.
+   - В автоконфигурации `TelegramCoreConfig` автоматически активирован `@EnableAsync` и зарегистрирован бин `telegramBotExecutor` (`AsyncTaskExecutor`), использующий `Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("tg-bot-vt-", 1).factory())`.
+   - Поток LongPolling-а не блокируется при получении апдейтов: каждый `Update` немедленно делегируется в индивидуальный виртуальный поток.
+   - При необходимости исполнитель можно переопределить в своём приложении, объявив бин с именем `telegramBotExecutor`.
+
+2. **Немедленное подтверждение кнопок (`AnswerCallbackQuery`):**
+   - При нажатии на кнопку (`CallbackQuery`) `ButtonService` мгновенно отправляет `AnswerCallbackQuery` в Telegram **до** выполнения бизнес-логики хэндлера `ButtonHandler.handle(...)`.
+   - Это гарантирует, что спиннер загрузки на кнопке у пользователя в Telegram гаснет сразу, а длительные блокирующие операции (запросы к БД, внешним API, платежным системам) в виртуальном потоке не приводят к ошибкам таймаута Telegram API (`query is too old`).
+   - Обработка аргументов кнопок потокобезопасна при параллельном исполнении в виртуальных потоках.
+
 ---
 
 ## 🛠 Сборка проекта

@@ -24,7 +24,7 @@ public class CommandService {
     private final UserInfoService userInfoService;
 
     public boolean handle(Message message) {
-        if (message == null || message.getText() == null) {
+        if (message == null || message.getText() == null || message.getFrom() == null) {
             return false;
         }
         long chatId = message.getChatId();

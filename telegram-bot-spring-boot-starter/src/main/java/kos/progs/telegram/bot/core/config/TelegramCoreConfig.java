@@ -11,14 +11,30 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.support.TaskExecutorAdapter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 @Configuration
+@EnableAsync
 @EnableConfigurationProperties(TelegramBotProperties.class)
 public class TelegramCoreConfig {
+
+    public static final String TELEGRAM_BOT_EXECUTOR_NAME = "telegramBotExecutor";
+
+    @Bean(name = TELEGRAM_BOT_EXECUTOR_NAME)
+    @ConditionalOnMissingBean(name = TELEGRAM_BOT_EXECUTOR_NAME)
+    public AsyncTaskExecutor telegramBotExecutor() {
+        ThreadFactory threadFactory = Thread.ofVirtual().name("tg-bot-vt-", 1).factory();
+        return new TaskExecutorAdapter(Executors.newThreadPerTaskExecutor(threadFactory));
+    }
 
     private String resolveToken(TelegramBotProperties properties, String fallbackToken) {
         String token = properties.getToken();

@@ -46,7 +46,7 @@ public class StateService {
     }
 
     public boolean handle(Message message) {
-        if (message == null) {
+        if (message == null || message.getFrom() == null) {
             return false;
         }
 

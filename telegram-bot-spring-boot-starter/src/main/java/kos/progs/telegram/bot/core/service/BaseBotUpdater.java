@@ -4,33 +4,46 @@ import kos.progs.telegram.bot.button.service.ButtonService;
 import kos.progs.telegram.bot.command.service.CommandService;
 import kos.progs.telegram.bot.states.service.StateService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import static kos.progs.telegram.bot.core.config.TelegramCoreConfig.TELEGRAM_BOT_EXECUTOR_NAME;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BaseBotUpdater {
     private final CommandService commandService;
     private final StateService stateService;
     private final ButtonService buttonService;
 
-    @Async
+    @Async(TELEGRAM_BOT_EXECUTOR_NAME)
     public void update(Update update) {
         if (update == null) {
             return;
         }
 
-        if (commandService.handle(update.getMessage())) {
-            return;
-        }
+        try {
+            if (update.getCallbackQuery() != null) {
+                buttonService.handle(update.getCallbackQuery());
+                return;
+            }
 
-        if (stateService.handle(update.getMessage())) {
-            return;
-        }
+            Message message = update.getMessage();
+            if (message != null) {
+                if (commandService.handle(message)) {
+                    return;
+                }
 
-        if (buttonService.handle(update.getCallbackQuery())) {
-            return;
+                if (stateService.handle(message)) {
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unhandled error processing update id {}: {}", update.getUpdateId(), e.getMessage(), e);
         }
     }
 }
