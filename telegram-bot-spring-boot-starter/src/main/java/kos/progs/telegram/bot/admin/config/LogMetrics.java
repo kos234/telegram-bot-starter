@@ -1,4 +1,4 @@
-package kos.progs.telegram.bot.admin.service;
+package kos.progs.telegram.bot.admin.config;
 
 public class LogMetrics {
     public static long a() {

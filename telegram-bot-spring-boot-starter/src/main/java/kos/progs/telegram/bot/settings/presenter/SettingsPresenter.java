@@ -1,7 +1,6 @@
 package kos.progs.telegram.bot.settings.presenter;
 
 import kos.progs.telegram.bot.command.handler.CancelHandler;
-import kos.progs.telegram.bot.common.model.Currency;
 import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.core.model.HandleResult;
 import kos.progs.telegram.bot.i18n.service.MessagesService;
@@ -11,7 +10,7 @@ import kos.progs.telegram.bot.settings.button.ChangeUserInfoCommand;
 import kos.progs.telegram.bot.settings.spi.SettingsRowContributor;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.service.UserInfoService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -24,19 +23,44 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class SettingsPresenter {
     private final MessagesService messagesService;
     private final TelegramClient telegramClient;
     private final CancelHandler cancelHandler;
-    private final ChangeLangCommand changeLangCommand;
-    private final ChangeCurrencyCommand changeCurrencyCommand;
-    private final UserInfoService userInfoService;
-    private final ChangeUserInfoCommand changeUserInfoCommand;
     private final List<SettingsRowContributor> contributors;
+
+    @Autowired
+    public SettingsPresenter(MessagesService messagesService,
+                             TelegramClient telegramClient,
+                             CancelHandler cancelHandler,
+                             List<SettingsRowContributor> contributors) {
+        this.messagesService = messagesService;
+        this.telegramClient = telegramClient;
+        this.cancelHandler = cancelHandler;
+        this.contributors = contributors != null ? contributors : List.of();
+    }
+
+    public SettingsPresenter(MessagesService messagesService,
+                             TelegramClient telegramClient,
+                             CancelHandler cancelHandler,
+                             UserInfoService userInfoService,
+                             ChangeUserInfoCommand changeUserInfoCommand,
+                             List<SettingsRowContributor> contributors) {
+        this(messagesService, telegramClient, cancelHandler, contributors);
+    }
+
+    public SettingsPresenter(MessagesService messagesService,
+                             TelegramClient telegramClient,
+                             CancelHandler cancelHandler,
+                             ChangeLangCommand changeLangCommand,
+                             ChangeCurrencyCommand changeCurrencyCommand,
+                             UserInfoService userInfoService,
+                             ChangeUserInfoCommand changeUserInfoCommand,
+                             List<SettingsRowContributor> contributors) {
+        this(messagesService, telegramClient, cancelHandler, contributors);
+    }
 
     public HandleResult presentSettings(UserInfo presentedUserInfo, long chatId) throws TelegramApiException {
         return presentSettings(presentedUserInfo, chatId, -1);
@@ -71,95 +95,40 @@ public class SettingsPresenter {
     }
 
     private String getMessage(UserInfo userInfo) {
-        StringBuilder extra = new StringBuilder();
-        if (contributors != null) {
-            contributors.stream()
-                    .sorted(Comparator.comparingInt(SettingsRowContributor::getOrder))
-                    .forEach(c -> {
-                        String info = c.getExtraInfo(userInfo);
-                        if (info != null && !info.isBlank()) {
-                            extra.append("\n").append(info);
-                        }
-                    });
+        Lang lang = userInfo.lang() != null ? userInfo.lang() : Lang.RU;
+        StringBuilder sb = new StringBuilder();
+
+        String intro = messagesService.get("settings.message_intro", lang);
+        if (intro == null || intro.equals("settings.message_intro")) {
+            intro = messagesService.get("settings.title", lang);
         }
+        sb.append(intro).append("\n");
 
-        String baseText = messagesService.get("settings.message_text", userInfo.lang(),
-                messagesService.get("settings.lang.title", userInfo.lang()),
-                userInfo.currency().getTitle(),
-                Optional.ofNullable(userInfo.email()).orElse(messagesService.get("settings.empty", userInfo.lang())),
-                Optional.ofNullable(userInfo.phone()).map(userInfoService::formatPhoneNumber).orElse(messagesService.get("settings.empty", userInfo.lang()))
-        );
+        contributors.stream()
+                .sorted(Comparator.comparingInt(SettingsRowContributor::getOrder))
+                .forEach(c -> {
+                    String info = c.getExtraInfo(userInfo);
+                    if (info != null && !info.isBlank()) {
+                        sb.append("\n").append(info);
+                    }
+                });
 
-        return baseText + extra.toString();
+        return sb.toString();
     }
 
     public InlineKeyboardMarkup getKeyboard(UserInfo userInfo) {
-        Lang lang = userInfo.lang();
-        Currency currency = userInfo.currency();
+        Lang lang = userInfo.lang() != null ? userInfo.lang() : Lang.RU;
 
         List<InlineKeyboardRow> rows = new ArrayList<>();
 
-        // Language selection
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.lang_choose", lang, messagesService.get("settings.lang.title", lang)))
-                        .callbackData("ignore")
-                        .build()
-        ));
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.lang.title", Lang.RU))
-                        .callbackData(changeLangCommand.buildCommand(Lang.RU))
-                        .build(),
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.lang.title", Lang.EN))
-                        .callbackData(changeLangCommand.buildCommand(Lang.EN))
-                        .build()
-        ));
-
-        // Currency selection
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.currency_choose", lang, currency.getTitle()))
-                        .callbackData("ignore")
-                        .build()
-        ));
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(Currency.RUB.getTitle())
-                        .callbackData(changeCurrencyCommand.buildCommand(Currency.RUB))
-                        .build(),
-                InlineKeyboardButton.builder()
-                        .text(Currency.USD.getTitle())
-                        .callbackData(changeCurrencyCommand.buildCommand(Currency.USD))
-                        .build()
-        ));
-
-        // Email & Phone
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.email", lang, messagesService.get("settings.change_button", lang)))
-                        .callbackData(changeUserInfoCommand.buildEmailChangeCommand())
-                        .build()
-        ));
-        rows.add(new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text(messagesService.get("settings.phone", lang, messagesService.get("settings.change_button", lang)))
-                        .callbackData(changeUserInfoCommand.buildPhoneChangeCommand())
-                        .build()
-        ));
-
-        // SPI extra rows
-        if (contributors != null) {
-            contributors.stream()
-                    .sorted(Comparator.comparingInt(SettingsRowContributor::getOrder))
-                    .forEach(c -> {
-                        List<InlineKeyboardRow> extraRows = c.getRows(userInfo);
-                        if (extraRows != null) {
-                            rows.addAll(extraRows);
-                        }
-                    });
-        }
+        contributors.stream()
+                .sorted(Comparator.comparingInt(SettingsRowContributor::getOrder))
+                .forEach(c -> {
+                    List<InlineKeyboardRow> contributorRows = c.getRows(userInfo);
+                    if (contributorRows != null) {
+                        rows.addAll(contributorRows);
+                    }
+                });
 
         // Back button
         rows.add(new InlineKeyboardRow(

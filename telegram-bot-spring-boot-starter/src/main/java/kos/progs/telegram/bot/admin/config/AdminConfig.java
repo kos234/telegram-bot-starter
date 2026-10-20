@@ -28,7 +28,7 @@ import java.util.List;
 public class AdminConfig {
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(name = "telegram.bot.admin-storage", havingValue = "memory", matchIfMissing = true)
+    @ConditionalOnProperty(name = "telegram.bot.admin-storage", havingValue = "memory")
     public static class MemoryAdminStorageConfiguration {
         @Bean
         @ConditionalOnMissingBean(AdminsRepository.class)
@@ -39,7 +39,7 @@ public class AdminConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(JPAAdminUserRepository.class)
-    @ConditionalOnProperty(name = "telegram.bot.admin-storage", havingValue = "jpa")
+    @ConditionalOnProperty(name = "telegram.bot.admin-storage", havingValue = "jpa", matchIfMissing = true)
     public static class JpaAdminStorageConfiguration {
         @Bean
         @ConditionalOnBean(JPAAdminUserRepository.class)

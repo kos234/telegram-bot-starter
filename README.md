@@ -63,7 +63,7 @@ kos.progs.telegram.bot
 │   ├── command/            # SettingsHandler (/settings)
 │   ├── model/              # UserInfoSetState
 │   ├── presenter/          # SettingsPresenter
-│   ├── spi/                # SettingsRowContributor
+│   ├── spi/                # SettingsRowContributor, LanguageSettingsRowContributor, CurrencySettingsRowContributor
 │   └── state/              # UserInfoChangeStateHandler
 │
 ├── lists/                  # Срез универсальных списков и пагинации
@@ -76,8 +76,9 @@ kos.progs.telegram.bot
 │   ├── config/             # I18nConfig
 │   └── service/            # MessagesService (чтение starter_messages и messages)
 │
-├── common/                 # Общие разделяемые энумы
-│   └── model/              # Lang (RU, EN), Currency (RUB, USD)
+├── common/                 # Общие разделяемые модели
+│   ├── config/             # CustomLangAndCurrencyInitializer
+│   └── model/              # Lang (RU, EN, кастомные), Currency (RUB, USD, кастомные)
 │
 └── spi/                    # Глобальные точки расширения (Contributor Pattern)
     ├── MainMenuContributor.java    # Расширение меню /start
@@ -116,14 +117,41 @@ kos.progs.telegram.bot
 # Токен бота (проверяются: telegram.bot.token, bot.token, bot_token, BOT_TOKEN)
 telegram.bot.token=YOUR_TELEGRAM_BOT_TOKEN
 
-# 1. Хранилище FSM-состояний и истории навигации: memory (по умолчанию), redis, jpa
-telegram.bot.state-storage=memory
+# 1. Хранилище FSM-состояний и истории навигации: redis (по умолчанию), memory, jpa
+telegram.bot.state-storage=redis
 
-# 2. Хранилище данных пользователей (UserInfo): memory (по умолчанию), redis, jpa
-telegram.bot.user-storage=memory
+# 2. Хранилище данных пользователей (UserInfo): jpa (по умолчанию), memory, redis
+telegram.bot.user-storage=jpa
 
-# 3. Хранилище списка администраторов: memory (по умолчанию), jpa
-telegram.bot.admin-storage=memory
+# 3. Хранилище списка администраторов: jpa (по умолчанию), memory
+telegram.bot.admin-storage=jpa
+
+# 4. Настройки языков (Lang)
+# Включение возможности смены языка пользователем (по умолчанию true)
+telegram.bot.language.enabled=true
+# Язык по умолчанию (по умолчанию RU)
+telegram.bot.language.default-code=RU
+# Регистрация дополнительных языков через свойства:
+# telegram.bot.language.custom[0].id=2
+# telegram.bot.language.custom[0].code=DE
+# telegram.bot.language.custom[0].tag=de-DE
+# telegram.bot.language.custom[0].title=Deutsch
+
+# 5. Настройки валют (Currency)
+# Включение поддержки валют и возможности их смены (по умолчанию true)
+telegram.bot.currency.enabled=true
+# Валюта по умолчанию (по умолчанию RUB)
+telegram.bot.currency.default-code=RUB
+# Регистрация дополнительных валют через свойства:
+# telegram.bot.currency.custom[0].id=2
+# telegram.bot.currency.custom[0].code=EUR
+# telegram.bot.currency.custom[0].title=€
+
+# 6. Настройки email и телефона в меню /settings
+# Включение строки и кнопки изменения email (по умолчанию true)
+telegram.bot.email.enabled=true
+# Включение строки и кнопки изменения телефона (по умолчанию true)
+telegram.bot.phone.enabled=true
 
 # (Опционально) Настройки модуля эквайринга Т-Банка
 bot.payment.tinkoff.enabled=true
@@ -226,6 +254,113 @@ public class DeliveryAddressSettingsContributor implements SettingsRowContributo
     }
 }
 ```
+
+### 5. Добавление кастомных языков (`Lang`) и валют (`Currency`)
+
+Языки (`Lang`) и валюты (`Currency`) больше не являются закрытыми перечислениями и поддерживают динамическую регистрацию.
+
+**Способ 1. Через Java API:**
+```java
+// Регистрация нового языка
+Lang de = Lang.register((byte) 2, "DE", Locale.GERMAN, "Deutsch");
+
+// Регистрация новой валюты
+Currency eur = Currency.register((byte) 2, "EUR", "€");
+```
+
+**Способ 2. Объявление Spring-бинов:**
+```java
+@Configuration
+public class CustomBotConfig {
+    @Bean
+    public Lang germanLang() {
+        return new Lang((byte) 2, "DE", Locale.GERMAN, "Deutsch");
+    }
+
+    @Bean
+    public Currency euroCurrency() {
+        return new Currency((byte) 2, "EUR", "€");
+    }
+}
+```
+
+**Способ 3. Через `application.properties`:**
+```properties
+telegram.bot.language.custom[0].id=2
+telegram.bot.language.custom[0].code=DE
+telegram.bot.language.custom[0].tag=de-DE
+telegram.bot.language.custom[0].title=Deutsch
+
+telegram.bot.currency.custom[0].id=2
+telegram.bot.currency.custom[0].code=EUR
+telegram.bot.currency.custom[0].title=€
+```
+
+Все зарегистрированные языки и валюты автоматически появляются в меню настроек `/settings` и сериализуются в Redis / JPA.
+
+### 6. Включение, отключение и кастомизация смены языка/валюты
+
+Управлять возможностью смены языка и валюты можно через свойства или интерфейсы SPI:
+
+- **Отключение через конфигурацию:**
+  ```properties
+  # Отключение смены языка и установка языка по умолчанию
+  telegram.bot.language.enabled=false
+  telegram.bot.language.default-code=RU
+
+  # Отключение валют
+  telegram.bot.currency.enabled=false
+  ```
+  При `enabled=false` кнопки выбора и соответствующие информационные строки в `/settings` автоматически скрываются, а обработчики кнопок отключаются.
+
+- **Собственная логика отображения через SPI:**
+  Все строки меню `/settings` (язык, валюта, email, телефон и кастомные строки) построены исключительно на интерфейсе `SettingsRowContributor` и отображаются строго по `getOrder()`:
+  - `LanguageSettingsRowContributor` (order = 100) — выбор языка (`telegram.bot.language.enabled`)
+  - `CurrencySettingsRowContributor` (order = 200) — выбор валюты (`telegram.bot.currency.enabled`)
+  - `EmailSettingsRowContributor` (order = 300) — изменение email (`telegram.bot.email.enabled`)
+  - `PhoneSettingsRowContributor` (order = 400) — изменение телефона (`telegram.bot.phone.enabled`)
+  - Кастомные контрибьюторы (любой `order`) — встраиваются в меню в точности по своему порядку.
+
+  Вы можете переопределить стандартное поведение, объявив свой бин или отнаследовавшись:
+  ```java
+  @Component
+  public class CustomLanguageSettingsContributor extends LanguageSettingsRowContributor {
+      public CustomLanguageSettingsContributor(MessagesService messagesService, ChangeLangCommand changeLangCommand) {
+          super(messagesService, changeLangCommand);
+      }
+
+      @Override
+      public List<InlineKeyboardRow> getRows(UserInfo userInfo) {
+          // Ваша кастомная верстка кнопок выбора языка
+          return super.getRows(userInfo);
+      }
+
+      @Override
+      public String getExtraInfo(UserInfo userInfo) {
+          return "Выбранный язык: " + userInfo.lang().getTitle();
+      }
+  }
+  ```
+
+### 7. Определение языка и валюты пользователя по умолчанию
+
+Для кастомизации логики метода `UserInfoService.getUserInfo(long userId, String systemLang)` предусмотрены две возможности:
+
+1. **Реализация интерфейса `DefaultUserInfoResolver` (рекомендуется):**
+   ```java
+   @Component
+   public class MyDefaultUserInfoResolver implements DefaultUserInfoResolver {
+       @Override
+       public UserInfo createDefaultUserInfo(long userId, String systemLang) {
+           if ("de".equalsIgnoreCase(systemLang)) {
+               return UserInfo.firstInfo(userId, Lang.valueOf("DE"), Currency.valueOf("EUR"));
+           }
+           return UserInfo.firstInfo(userId, Lang.RU, Currency.RUB);
+       }
+   }
+   ```
+2. **Наследование от `UserInfoService`:**
+   Класс `UserInfoService` открыт для расширения — вы можете переопределить метод `protected UserInfo createDefaultUserInfo(long userId, String systemLang)`.
 
 ---
 

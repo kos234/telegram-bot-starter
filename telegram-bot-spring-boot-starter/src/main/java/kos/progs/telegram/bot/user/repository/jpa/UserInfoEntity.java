@@ -1,8 +1,7 @@
 package kos.progs.telegram.bot.user.repository.jpa;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import kos.progs.telegram.bot.common.model.Currency;
@@ -22,10 +21,10 @@ public class UserInfoEntity {
     @Id
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = LangJpaConverter.class)
     private Lang userLang;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = CurrencyJpaConverter.class)
     private Currency currency;
 
     private String email;

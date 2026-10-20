@@ -4,31 +4,43 @@ import kos.progs.telegram.bot.common.model.Currency;
 import kos.progs.telegram.bot.common.model.Lang;
 import kos.progs.telegram.bot.user.model.UserInfo;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
 public class UserInfoService {
-    private final IUserInfoRepository userInfoRepository;
+    protected final IUserInfoRepository userInfoRepository;
+    protected final DefaultUserInfoResolver defaultUserInfoResolver;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,15}$");
+
+    @Autowired
+    public UserInfoService(IUserInfoRepository userInfoRepository, DefaultUserInfoResolver defaultUserInfoResolver) {
+        this.userInfoRepository = Objects.requireNonNull(userInfoRepository, "userInfoRepository must not be null");
+        this.defaultUserInfoResolver = defaultUserInfoResolver != null
+                ? defaultUserInfoResolver
+                : new StandardDefaultUserInfoResolver(null);
+    }
+
+    public UserInfoService(IUserInfoRepository userInfoRepository) {
+        this(userInfoRepository, new StandardDefaultUserInfoResolver(null));
+    }
 
     public UserInfo getUserInfo(long userId, String systemLang) {
         var res = userInfoRepository.getUserInfo(userId);
         if (res.isEmpty()) {
-            String langCode = systemLang != null ? systemLang.toLowerCase() : "en";
-            UserInfo userInfo = switch (langCode) {
-                case "ru", "by", "kz", "kg", "ua", "am", "az", "ge", "uz", "tj", "md", "lv", "lt", "ee", "il" ->
-                        UserInfo.firstInfo(userId, Lang.RU, Currency.RUB);
-                default -> UserInfo.firstInfo(userId, Lang.EN, Currency.USD);
-            };
+            UserInfo userInfo = createDefaultUserInfo(userId, systemLang);
             userInfoRepository.setUserInfo(userInfo);
             res = Optional.of(userInfo);
         }
         return res.get();
+    }
+
+    protected UserInfo createDefaultUserInfo(long userId, String systemLang) {
+        return defaultUserInfoResolver.createDefaultUserInfo(userId, systemLang);
     }
 
     public UserInfo updateLang(long userId, Lang lang) {

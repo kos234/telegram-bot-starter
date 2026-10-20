@@ -30,7 +30,7 @@ import java.util.List;
 public class StateConfig {
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(name = "telegram.bot.state-storage", havingValue = "memory", matchIfMissing = true)
+    @ConditionalOnProperty(name = "telegram.bot.state-storage", havingValue = "memory")
     public static class MemoryStorageConfiguration {
         @Bean
         @ConditionalOnMissingBean(StateRepository.class)
@@ -47,7 +47,7 @@ public class StateConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(StringRedisTemplate.class)
-    @ConditionalOnProperty(name = "telegram.bot.state-storage", havingValue = "redis")
+    @ConditionalOnProperty(name = "telegram.bot.state-storage", havingValue = "redis", matchIfMissing = true)
     public static class RedisStorageConfiguration {
         @Bean
         @ConditionalOnMissingBean(StateRepository.class)

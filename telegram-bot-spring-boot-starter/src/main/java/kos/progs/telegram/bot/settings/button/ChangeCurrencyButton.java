@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -30,11 +31,11 @@ public class ChangeCurrencyButton implements ButtonHandler {
 
     @Override
     public HandleResult handle(CallbackQuery callbackQuery, UserInfo userInfo, String command, ByteBuffer rawArgs) throws TelegramApiException {
-        var args = new PrimitiveArgs<Byte>();
+        var args = new PrimitiveArgs<>(Byte.class);
         args.fromByteBuffer(rawArgs);
 
         var newCurrency = Currency.valueOf(args.getValue());
-        if (newCurrency == userInfo.currency()) {
+        if (Objects.equals(newCurrency, userInfo.currency())) {
             return HandleResult.unhandled();
         }
 

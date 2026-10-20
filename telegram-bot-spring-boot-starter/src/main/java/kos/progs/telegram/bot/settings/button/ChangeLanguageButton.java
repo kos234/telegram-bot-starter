@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -30,11 +31,11 @@ public class ChangeLanguageButton implements ButtonHandler {
 
     @Override
     public HandleResult handle(CallbackQuery callbackQuery, UserInfo userInfo, String command, ByteBuffer rawArgs) throws TelegramApiException {
-        var args = new PrimitiveArgs<Byte>();
+        var args = new PrimitiveArgs<>(Byte.class);
         args.fromByteBuffer(rawArgs);
 
         var newLang = Lang.valueOf(args.getValue());
-        if (newLang == userInfo.lang()) {
+        if (Objects.equals(newLang, userInfo.lang())) {
             return HandleResult.unhandled();
         }
 

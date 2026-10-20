@@ -1,12 +1,15 @@
 package kos.progs.telegram.bot.user.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kos.progs.telegram.bot.core.config.TelegramBotProperties;
 import kos.progs.telegram.bot.user.repository.IUserInfoRepository;
-import kos.progs.telegram.bot.user.repository.jpa.UserInfoRepositoryAdapter;
-import kos.progs.telegram.bot.user.repository.jpa.UserInfoMapper;
 import kos.progs.telegram.bot.user.repository.jpa.JPAUserInfoRepository;
+import kos.progs.telegram.bot.user.repository.jpa.UserInfoMapper;
+import kos.progs.telegram.bot.user.repository.jpa.UserInfoRepositoryAdapter;
 import kos.progs.telegram.bot.user.repository.memory.MemoryUserInfoRepository;
 import kos.progs.telegram.bot.user.repository.redis.RedisUserInfoRepository;
+import kos.progs.telegram.bot.user.service.DefaultUserInfoResolver;
+import kos.progs.telegram.bot.user.service.StandardDefaultUserInfoResolver;
 import kos.progs.telegram.bot.user.service.UserInfoService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +23,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 public class UserConfig {
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(name = "telegram.bot.user-storage", havingValue = "memory", matchIfMissing = true)
+    @ConditionalOnProperty(name = "telegram.bot.user-storage", havingValue = "memory")
     public static class MemoryUserStorageConfiguration {
         @Bean
         @ConditionalOnMissingBean(IUserInfoRepository.class)
@@ -42,7 +45,7 @@ public class UserConfig {
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(JPAUserInfoRepository.class)
-    @ConditionalOnProperty(name = "telegram.bot.user-storage", havingValue = "jpa")
+    @ConditionalOnProperty(name = "telegram.bot.user-storage", havingValue = "jpa", matchIfMissing = true)
     public static class JpaUserStorageConfiguration {
         @Bean
         @ConditionalOnMissingBean
@@ -60,8 +63,15 @@ public class UserConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean(DefaultUserInfoResolver.class)
+    public DefaultUserInfoResolver defaultUserInfoResolver(TelegramBotProperties properties) {
+        return new StandardDefaultUserInfoResolver(properties);
+    }
+
+    @Bean
     @ConditionalOnMissingBean(UserInfoService.class)
-    public UserInfoService userInfoService(IUserInfoRepository userInfoRepository) {
-        return new UserInfoService(userInfoRepository);
+    public UserInfoService userInfoService(IUserInfoRepository userInfoRepository,
+                                           DefaultUserInfoResolver defaultUserInfoResolver) {
+        return new UserInfoService(userInfoRepository, defaultUserInfoResolver);
     }
 }
