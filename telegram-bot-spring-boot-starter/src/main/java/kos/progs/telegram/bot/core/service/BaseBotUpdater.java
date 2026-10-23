@@ -25,8 +25,7 @@ public class BaseBotUpdater {
         }
 
         try {
-            if (update.getCallbackQuery() != null) {
-                buttonService.handle(update.getCallbackQuery());
+            if (update.getCallbackQuery() != null && buttonService.handle(update.getCallbackQuery())) {
                 return;
             }
 

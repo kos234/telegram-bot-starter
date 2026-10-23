@@ -36,7 +36,7 @@ services:
     build:
       context: .
       dockerfile: telegram-bot-starter-runner/Dockerfile
-    restart: on-failure
+#    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
